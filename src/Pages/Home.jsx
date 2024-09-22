@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { collection, addDoc } from "firebase/firestore"; 
+import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../Configurations/FirebaseConfig";
 
 
@@ -8,23 +9,37 @@ const Home = () => {
   const inputValue = useRef();
  async function addTodo(event) {
     event.preventDefault();
-    todo.push(inputValue.current.value);
-    setTodo([...todo]);
-    console.log(todo);
+    
     try {
       const docRef = await addDoc(collection(db, "todos"), {
         todo:inputValue.current.value
       });
+      todo.push({
+        todo:inputValue.current.value,
+        id:docRef.id
+      })
+      setTodo([...todo]);
+      console.log(todo)
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
 
-  function editTodo(index) {
+ async  function editTodo(index) {
     const newValue = prompt("Enter new value");
-    todo.splice(index, 1, newValue);
+    todo[index].todo = newValue
     setTodo([...todo]);
+
+  
+const washingtonRef = doc(db, "todos", todo[index].id);
+
+// Set the "capital" field of the city 'DC'
+await updateDoc(washingtonRef, {
+  todo:newValue,
+  id:todo[index].id
+
+});
   }
   function deleteFunction(index) {
     todo.splice(index, 1);
@@ -72,7 +87,7 @@ const Home = () => {
             return (
               <div key={index}>
                 <li>
-                  {item}
+                  {item.todo}
                   <button
                     className="btn btn-primary"
                     onClick={() => editTodo(index)}
