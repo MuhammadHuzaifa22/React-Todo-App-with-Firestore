@@ -1,18 +1,37 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { collection, addDoc } from "firebase/firestore"; 
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../Configurations/FirebaseConfig";
+import { deleteDoc } from "firebase/firestore";
+import {  getDocs } from "firebase/firestore";
 
 
 const Home = () => {
   let [todo, setTodo] = useState([]);
   const inputValue = useRef();
+
+useEffect(()=>{
+async function getDataFromFirestore(){
+
+const querySnapshot = await getDocs(collection(db, "todos"));
+querySnapshot.forEach((doc) => {
+  console.log(doc.id, " => ", doc.data());
+  todo.push({id:doc.id,...doc.data()})
+  setTodo([...todo])
+});
+}
+  getDataFromFirestore();
+},[])
+
+
  async function addTodo(event) {
     event.preventDefault();
-    
+  
+
     try {
       const docRef = await addDoc(collection(db, "todos"), {
         todo:inputValue.current.value
+      
       });
       todo.push({
         todo:inputValue.current.value,
@@ -34,16 +53,18 @@ const Home = () => {
   
 const washingtonRef = doc(db, "todos", todo[index].id);
 
-// Set the "capital" field of the city 'DC'
 await updateDoc(washingtonRef, {
   todo:newValue,
-  id:todo[index].id
-
 });
+
   }
-  function deleteFunction(index) {
+
+ async function deleteFunction(index) {
+   console.log(todo[index].id)
+   await deleteDoc(doc(db, "todos", todo[index].id));
     todo.splice(index, 1);
     setTodo([...todo]);
+
   }
 
   return (
