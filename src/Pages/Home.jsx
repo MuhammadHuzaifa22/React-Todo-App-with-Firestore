@@ -16,12 +16,12 @@ async function getDataFromFirestore(){
 const querySnapshot = await getDocs(collection(db, "todos"));
 querySnapshot.forEach((doc) => {
   console.log(doc.id, " => ", doc.data());
-  todo.push({id:doc.id,...doc.data()})
-  setTodo([...todo])
+  todo.push({id:doc.id,...doc.data()});
+  setTodo([...todo]);
 });
 }
   getDataFromFirestore();
-},[])
+},[]);
 
 
  async function addTodo(event) {
